@@ -59,14 +59,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val context = LocalContext.current
-            val themePreferences = remember { AppPreferences(context) }
-            val themeMode by themePreferences.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
-            
-            val darkTheme = when (themeMode) {
-                ThemeMode.LIGHT -> false
-                ThemeMode.DARK -> true
-                ThemeMode.SYSTEM -> isSystemInDarkTheme()
-            }
+            val darkTheme = true
 
             val userProfileManager = remember { com.example.data.UserProfileManager.getInstance(context) }
             val profile by userProfileManager.profile.collectAsState()

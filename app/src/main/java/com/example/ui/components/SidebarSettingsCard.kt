@@ -27,8 +27,6 @@ import com.example.ui.theme.DarkCard
 
 @Composable
 fun SidebarSettingsCard(
-    themeMode: ThemeMode,
-    appPreferences: AppPreferences,
     profile: UserProfile,
     userProfileManager: UserProfileManager
 ) {
@@ -49,34 +47,7 @@ fun SidebarSettingsCard(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             
-            // Theme Toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (themeMode == ThemeMode.DARK) Icons.Rounded.DarkMode else Icons.Rounded.LightMode,
-                        contentDescription = "Theme",
-                        tint = AccentPurpleLight,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text("Dark Mode", color = Color.White, fontSize = 14.sp)
-                }
-                Switch(
-                    checked = themeMode == ThemeMode.DARK,
-                    onCheckedChange = { isDark ->
-                        scope.launch {
-                            appPreferences.saveThemeMode(if (isDark) ThemeMode.DARK else ThemeMode.LIGHT)
-                        }
-                    },
-                    colors = SwitchDefaults.colors(checkedThumbColor = AccentPurpleLight, checkedTrackColor = AccentPurpleLight.copy(alpha = 0.5f))
-                )
-            }
-            
-            Divider(color = Color.White.copy(alpha = 0.1f), modifier = Modifier.padding(vertical = 8.dp))
+
             
             // Language Toggle
             Row(

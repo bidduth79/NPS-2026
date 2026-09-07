@@ -39,8 +39,6 @@ import com.example.ui.theme.DarkCard
 @Composable
 fun DeveloperSidebar(modifier: Modifier = Modifier, onWalletClicked: () -> Unit = {}) {
     val context = LocalContext.current
-    val appPreferences = remember { AppPreferences(context) }
-    val themeMode by appPreferences.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
     val userProfileManager = remember { UserProfileManager.getInstance(context) }
     val profile by userProfileManager.profile.collectAsState()
     val scrollState = rememberScrollState()
@@ -119,7 +117,7 @@ fun DeveloperSidebar(modifier: Modifier = Modifier, onWalletClicked: () -> Unit 
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                SidebarSettingsCard(themeMode, appPreferences, profile, userProfileManager)
+                SidebarSettingsCard(profile, userProfileManager)
             }
             
             Divider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp))

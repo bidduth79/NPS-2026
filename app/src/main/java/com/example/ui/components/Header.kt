@@ -67,9 +67,8 @@ fun AppHeader(scrollOffset: Int = 0, onMenuClick: () -> Unit = {}, modifier: Mod
                     )
                 }
                 
-                // Menu Button and Theme Toggle
+                // Menu Button
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ThemeToggle()
                     IconButton(
                         onClick = onMenuClick,
                         modifier = Modifier
