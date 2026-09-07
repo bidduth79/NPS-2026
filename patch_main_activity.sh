@@ -1,0 +1,1 @@
+sed -i 's/activeStage = activeStage/activeStage = activeStage,\n                                                onClick = { activeStage = (activeStage + 1) % 4 }/' app/src/main/java/com/example/MainActivity.kt

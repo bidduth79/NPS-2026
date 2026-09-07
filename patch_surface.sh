@@ -1,0 +1,1 @@
+sed -i 's/\.then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)/\.clickable(enabled = onClick != null) { onClick?.invoke() }/' app/src/main/java/com/example/ui/components/ResultDashboard.kt

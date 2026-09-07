@@ -1,0 +1,195 @@
+fun HomeScreen() {
+    val grades = (1..20).map { "Grade $it" }
+    var selectedGradeIndex by remember { mutableIntStateOf(15) } // Default Grade 16 is index 15
+    var selectedStepIndex by remember { mutableIntStateOf(15) } // Default Step 16
+    val grade = selectedGradeIndex + 1
+    val stepsList = PayScale2015.steps[grade] ?: emptyList()
+    
+    val stepsDropdown = stepsList.mapIndexed { index, value -> 
+        "Step ${index + 1} — ${NumberFormatter.format(value)}"
+    }
+
+    // Reset step index if grade changes and previous step index is out of bounds
+    LaunchedEffect(grade) {
+        if (selectedStepIndex >= stepsList.size) {
+            selectedStepIndex = 0
+        }
+    }
+    
+    val result = SalaryCalculator.calculate(grade, selectedStepIndex)
+    val scrollState = rememberScrollState()
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            DeveloperSidebar()
+        }
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color(0xFF120F16) // Dark premium background
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                ParallaxBackground(scrollOffset = scrollState.value)
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AppHeader(
+                        scrollOffset = scrollState.value,
+                        onMenuClick = {
+                            scope.launch {
+                                drawerState.open()
+                            }
+                        }
+                    )
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-32).dp)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Input Card
+                    Surface(
+                        shape = RoundedCornerShape(32.dp),
+                        color = Color(0xFF1C1924).copy(alpha = 0.8f), // Glassy dark card
+                        shadowElevation = 0.dp,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF3B3247).copy(alpha = 0.5f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            DropdownSelector(
+                                label = "Select Grade",
+                                stepNumber = "1",
+                                items = grades,
+                                selectedIndex = selectedGradeIndex,
+                                onItemSelected = { selectedGradeIndex = it }
+                            )
+                            
+                            DropdownSelector(
+                                label = "Select Step (Basic before 30-06-2026)",
+                                stepNumber = "2",
+                                items = stepsDropdown,
+                                selectedIndex = selectedStepIndex,
+                                onItemSelected = { selectedStepIndex = it }
+                            )
+                        }
+                    }
+                    
+                    // Dashboard
+                    if (result != null) {
+                        AnimatedContent(
+                            targetState = result,
+                            transitionSpec = {
+                                fadeIn(animationSpec = tween(400)) + slideInVertically(
+                                    animationSpec = tween(400),
+                                    initialOffsetY = { fullHeight -> fullHeight / 8 }
+                                ) togetherWith fadeOut(animationSpec = tween(200)) + slideOutVertically(
+                                    animationSpec = tween(200),
+                                    targetOffsetY = { fullHeight -> -fullHeight / 8 }
+                                )
+                            },
+                            label = "result_animation"
+                        ) { targetResult ->
+                            var detailsExpanded by remember { mutableStateOf(false) }
+                            var activeStage by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+                            
+                            val density = LocalDensity.current
+                            val configuration = LocalConfiguration.current
+                            val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+                            val horizontalPaddingPx = with(density) { 32.dp.toPx() } // 16.dp each side
+                            val cardWidthPx = screenWidthPx - horizontalPaddingPx
+                            
+                            val transition = updateTransition(targetState = detailsExpanded, label = "details_expand")
+                            val progress by transition.animateFloat(
+                                transitionSpec = { tween(600, easing = FastOutSlowInEasing) },
+                                label = "progress"
+                            ) { if (it) 1f else 0f }
+                            
+                            val currentScale = 1f - (0.52f * progress) // Scales down to 48%
+                            val dashTranslateX = -(cardWidthPx * 0.26f) * progress
+                            val chartTranslateX = (cardWidthPx * 0.26f) * progress
+                            
+                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                androidx.compose.ui.layout.Layout(
+                                    content = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .graphicsLayer {
+                                                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f)
+                                                    scaleX = currentScale
+                                                    scaleY = currentScale
+                                                    translationX = dashTranslateX
+                                                }
+                                        ) {
+                                            ResultDashboard(
+                                                result = targetResult, 
+                                                scrollOffset = scrollState.value,
+                                                activeStage = activeStage
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .graphicsLayer {
+                                                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f)
+                                                    scaleX = currentScale
+                                                    scaleY = currentScale
+                                                    translationX = chartTranslateX
+                                                }
+                                        ) {
+                                            SalaryGrowthChart(result = targetResult, scrollOffset = scrollState.value)
+                                        }
+                                    }
+                                ) { measurables, constraints ->
+                                    val dashPlaceable = measurables[0].measure(constraints)
+                                    val chartPlaceable = measurables[1].measure(constraints)
+                                    
+                                    val gapPx = 16.dp.roundToPx()
+                                    val originalChartY = dashPlaceable.height + gapPx
+                                    
+                                    val collapsedHeight = dashPlaceable.height + gapPx + chartPlaceable.height
+                                    val expandedHeight = maxOf(dashPlaceable.height, chartPlaceable.height) * 0.48f
+                                    val currentHeight = (collapsedHeight - (collapsedHeight - expandedHeight) * progress).roundToInt()
+                                    
+                                    val currentChartY = (originalChartY * (1f - progress)).roundToInt()
+                                    
+                                    layout(constraints.maxWidth, currentHeight) {
+                                        dashPlaceable.place(0, 0)
+                                        chartPlaceable.place(0, currentChartY)
+                                    }
+                                }
+                                
+                                CalculationDetailsView(
+                                    result = targetResult, 
+                                    isExpanded = detailsExpanded,
+                                    onToggle = { detailsExpanded = !detailsExpanded },
+                                    onActiveStageChanged = { activeStage = it }
+                                )
+                                ActionButtons(result = targetResult)
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
+    }
+}

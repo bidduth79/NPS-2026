@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">পে-স্কেল ক্যালকুলেটর</string>
+    <string name="select_grade">গ্রেড নির্বাচন করুন</string>
+    <string name="select_step_basic">ধাপ এবং মূল বেতন</string>
+    <string name="salary_breakdown">বেতনের বিবরণী</string>
+    <string name="calculation_details">হিসাবের বিস্তারিত</string>
+    <string name="salary_basic">মূল বেতন</string>
+    <string name="profile_house_rent">বাড়ি ভাড়া</string>
+    <string name="salary_medical">চিকিৎসা ভাতা</string>
+    <string name="salary_education_allowance">শিক্ষা ভাতা</string>
+    <string name="profile_tiffin_allowance">টিফিন ভাতা</string>
+    <string name="profile_washing_allowance">ধোলাই ভাতা</string>
+    <string name="profile_frontier_allowance">সীমান্ত ভাতা</string>
+    <string name="salary_gross">মোট বেতন</string>
+    <string name="salary_net">প্রাপ্য বেতন (নেট)</string>
+    <string name="loc_dhaka">ঢাকা মেট্রোপলিটন</string>
+    <string name="loc_other_city">অন্যান্য সিটি কর্পোরেশন</string>
+    <string name="grade_format">গ্রেড %1$d</string>
+</resources>

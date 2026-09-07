@@ -1,0 +1,1 @@
+sed -i 's/val response = askGemini(text, customApiKey)/val profileManager = com.example.data.UserProfileManager.getInstance(getApplication())\n            val profile = profileManager.profile.value\n            val response = askGemini(text, customApiKey, profile)/' app/src/main/java/com/example/viewmodel/ChatViewModel.kt

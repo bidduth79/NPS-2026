@@ -1,0 +1,8 @@
+{
+  "name": "5. fixed Pay scal 2026 ",
+  "description": "",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

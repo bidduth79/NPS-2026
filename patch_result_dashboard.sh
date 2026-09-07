@@ -1,0 +1,1 @@
+sed -i 's/fun ResultDashboard(result: CalculationResult, scrollOffset: Int = 0, activeStage: Int = 0)/fun ResultDashboard(result: CalculationResult, scrollOffset: Int = 0, activeStage: Int = 0, onClick: (() -> Unit)? = null)/' app/src/main/java/com/example/ui/components/ResultDashboard.kt
