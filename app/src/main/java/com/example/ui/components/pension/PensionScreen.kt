@@ -34,6 +34,7 @@ fun PensionScreen(onBack: () -> Unit) {
     var basicSalaryStr by remember { mutableStateOf("45000") }
     var yearsOfService by remember { mutableFloatStateOf(25f) }
     var accruedLeaveMonths by remember { mutableFloatStateOf(18f) }
+    var age by remember { mutableFloatStateOf(60f) }
 
     val basicSalary = basicSalaryStr.toLongOrNull() ?: 0L
 
@@ -73,7 +74,11 @@ fun PensionScreen(onBack: () -> Unit) {
     val leaveEncashment = basicSalary * accruedLeaveMonths.toLong() // ছুটি নগদায়ন
     val totalLumpSum = lumpSumGratuity + leaveEncashment
 
-    val medicalAllowance = 1500L
+    val medicalAllowance = when {
+        age <= 50f -> 3000L
+        age <= 65f -> 5000L
+        else -> 6000L
+    }
     val monthlyPension = retained + medicalAllowance
 
     Column(
@@ -132,7 +137,9 @@ fun PensionScreen(onBack: () -> Unit) {
                 yearsOfService = yearsOfService,
                 onYearsOfServiceChange = { yearsOfService = it },
                 accruedLeaveMonths = accruedLeaveMonths,
-                onAccruedLeaveMonthsChange = { accruedLeaveMonths = it }
+                onAccruedLeaveMonthsChange = { accruedLeaveMonths = it },
+                age = age,
+                onAgeChange = { age = it }
             )
 
             Spacer(modifier = Modifier.height(24.dp))

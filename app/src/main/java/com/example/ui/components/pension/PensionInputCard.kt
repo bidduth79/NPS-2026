@@ -25,7 +25,9 @@ fun PensionInputCard(
     yearsOfService: Float,
     onYearsOfServiceChange: (Float) -> Unit,
     accruedLeaveMonths: Float,
-    onAccruedLeaveMonthsChange: (Float) -> Unit
+    onAccruedLeaveMonthsChange: (Float) -> Unit,
+    age: Float,
+    onAgeChange: (Float) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -130,6 +132,45 @@ fun PensionInputCard(
             )
             Text(
                 "Note: Max 18 months allowable for encashment.",
+                color = TextGray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Age (বয়স)",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "${age.toInt()} Years",
+                    color = AccentPurpleLight,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Slider(
+                value = age,
+                onValueChange = onAgeChange,
+                valueRange = 50f..100f,
+                steps = 49, // (100 - 50) - 1
+                colors = SliderDefaults.colors(
+                    thumbColor = AccentPurpleLight,
+                    activeTrackColor = AccentPurple,
+                    inactiveTrackColor = Color.White.copy(alpha = 0.1f)
+                )
+            )
+            Text(
+                "Note: Medical allowance depends on age.",
                 color = TextGray,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 4.dp)

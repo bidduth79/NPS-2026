@@ -9,12 +9,12 @@ fun calculateDetailedAllowances(basic: Long, selectedGrade: Int, profile: UserPr
 
     val medicalAllowance = if (is2026Base) 3000L else 1500L
     val educationAllowance = if (is2026Base) {
-        (profile.numberOfChildren * 1000L).coerceAtMost(2000L)
+        (profile.numberOfChildren * 500L).coerceAtMost(1000L)
     } else {
         (profile.numberOfChildren * 500L).coerceAtMost(1000L) // Max 2 children
     }
     
-    val tiffinAllowance = if (profile.hasTiffinAllowance) (if (is2026Base) 600L else 200L) else 0L
+    val tiffinAllowance = if (profile.hasTiffinAllowance) (if (is2026Base) 500L else 200L) else 0L
     val washingAllowance = if (profile.hasWashingAllowance) 300L else 0L
     
     // Base for allowance calculation
@@ -30,19 +30,19 @@ fun calculateDetailedAllowances(basic: Long, selectedGrade: Int, profile: UserPr
         } ?: basic
     }
 
-    val houseRent = calculateHouseRent(profile, baseForAllowance, locDhaka, locOtherCity)
+    val houseRent = calculateHouseRent(profile, baseForAllowance, selectedGrade, is2026Base, locDhaka, locOtherCity)
     val hillAllowance = if (profile.hasHillAllowance) {
-        val maxLimit = if (profile.hillAllowanceAreaType == "Sadar") 3000L else 5000L
+        val maxLimit = if (profile.hillAllowanceAreaType == "Sadar") (if (is2026Base) 5000L else 3000L) else (if (is2026Base) 5500L else 5000L)
         (baseForAllowance * 0.20).toLong().coerceAtMost(maxLimit)
     } else {
         0L
     }
-    val disabledChildAllowance = profile.numberOfDisabledChildren * (if (is2026Base) 1000L else 1000L) // As per image it says 1000 Tk normally, but let's stick to 1000
+    val disabledChildAllowance = profile.numberOfDisabledChildren * (if (is2026Base) 3000L else 1000L)
     val frontierAllowance = calculateFrontierAllowance(profile)
     
     // Annual/Periodic (represented here for record if needed, but not part of monthly gross usually unless calculated, we return them separately)
     val festivalAllowance = if (profile.hasFestivalAllowance) baseForAllowance * 2 else 0L // 2 bonuses yearly
-    val baishakhiAllowance = if (profile.hasBaishakhiAllowance) (baseForAllowance * 0.2).toLong() else 0L
+    val baishakhiAllowance = if (profile.hasBaishakhiAllowance) (baseForAllowance * (if (is2026Base) 0.15 else 0.2)).toLong() else 0L
     
     val totalGross = basic + houseRent + medicalAllowance + educationAllowance + tiffinAllowance + washingAllowance + hillAllowance + frontierAllowance + disabledChildAllowance + profile.mobileBillAmount + profile.tradeAllowanceAmount
     
@@ -65,7 +65,7 @@ fun calculateDetailedAllowances(basic: Long, selectedGrade: Int, profile: UserPr
     )
 }
 
-private fun calculateHouseRent(profile: UserProfile, baseForAllowance: Long, locDhaka: String, locOtherCity: String): Long {
+private fun calculateHouseRent(profile: UserProfile, baseForAllowance: Long, selectedGrade: Int, is2026Base: Boolean, locDhaka: String, locOtherCity: String): Long {
     // Unmarried condition: 30% everywhere
     if (profile.maritalStatus == "Unmarried") {
         return (baseForAllowance * 0.30).toLong()
@@ -73,6 +73,9 @@ private fun calculateHouseRent(profile: UserProfile, baseForAllowance: Long, loc
 
     // Married condition but Line Man or In-Living: 50% everywhere
     if (profile.isLineMan || profile.isInLiving) {
+        if (is2026Base) {
+            return (baseForAllowance * 0.50).toLong()
+        }
         val minFloor = when {
             baseForAllowance <= 9700 -> 4500L
             baseForAllowance <= 16000 -> 4800L
@@ -82,7 +85,39 @@ private fun calculateHouseRent(profile: UserProfile, baseForAllowance: Long, loc
         return (baseForAllowance * 0.50).toLong().coerceAtLeast(minFloor)
     }
 
-    // Married, Family Man, Out-Living (Location Based)
+    if (is2026Base) {
+        return when (profile.locationType) {
+            locDhaka, "Dhaka Metropolitan", "ঢাকা মেট্রোপলিটন" -> {
+                val rate = when (selectedGrade) {
+                    in 16..20 -> 0.60
+                    in 10..15 -> 0.50
+                    in 5..9 -> 0.45
+                    else -> 0.40
+                }
+                (baseForAllowance * rate).toLong()
+            }
+            locOtherCity, "Other City Corporation", "অন্যান্য সিটি কর্পোরেশন" -> {
+                val rate = when (selectedGrade) {
+                    in 16..20 -> 0.50
+                    in 10..15 -> 0.40
+                    in 5..9 -> 0.35
+                    else -> 0.30
+                }
+                (baseForAllowance * rate).toLong()
+            }
+            else -> {
+                val rate = when (selectedGrade) {
+                    in 16..20 -> 0.45
+                    in 10..15 -> 0.35
+                    in 5..9 -> 0.30
+                    else -> 0.25
+                }
+                (baseForAllowance * rate).toLong()
+            }
+        }
+    }
+
+    // Married, Family Man, Out-Living (Location Based) for 2015
     return when (profile.locationType) {
         locDhaka, "Dhaka Metropolitan", "ঢাকা মেট্রোপলিটন" -> {
             val rate = when {
