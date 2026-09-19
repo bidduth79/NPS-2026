@@ -76,7 +76,8 @@ fun DeveloperSidebar(modifier: Modifier = Modifier, onWalletClicked: () -> Unit 
                 
                 Text(text = "BIDDUTH", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(text = "Android Developer", color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(24.dp))
+                Text(text = "V-2.0", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 
                 ContactRow(icon = Icons.Default.Email, text = "ctrkb79@gmail.com")
                 Spacer(modifier = Modifier.height(12.dp))
